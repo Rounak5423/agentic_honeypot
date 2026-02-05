@@ -6,36 +6,45 @@ const app = express();
 app.use(express.json());
 
 
-// API KEY CONFIG
+
+app.get("/", (req, res) => {
+  res.status(200).json({
+    status: "ok",
+    service: "Agentic Honeypot API",
+    message: "Service is running"
+  });
+});
+
 
 const API_KEY = "HACKATHON_DEMO_KEY";
 
-// 🔐 API key middleware (MUST be after app creation)
-app.use((req, res, next) => {
-  const key = req.headers["x-api-key"];
 
-  if (!key || key !== API_KEY) {
+app.use((req, res, next) => {
+  // allow health check without API key
+  if (req.path === "/") return next();
+
+  const key = req.headers["x-api-key"];
+  if (!key || key !== "HACKATHON_DEMO_KEY") {
     return res.status(401).json({ error: "Invalid or missing API key" });
   }
-
   next();
 });
+
 
 const PORT = 3000;
 
 
-// In-memory storage
+
 
 const SESSIONS = {};
 
 
-// Personas
 
 const PERSONAS = {
   elderly_victim: {
-    name: "Prince Hill",
+    name: "Prince yadav",
     stallPhrases: [
-      "Oh dear, this is all very confusing.",
+      " this is all very confusing.",
       "My phone is acting strange again.",
       "Please be patient with me.",
       "I’m not very good with these things."
@@ -50,7 +59,7 @@ const PERSONAS = {
 };
 
 
-// Logging helper
+
 
 function logIntel(sessionId, from, message) {
   const logLine = `[${new Date().toISOString()}] ${sessionId} | ${from}: ${message}\n`;
@@ -58,7 +67,6 @@ function logIntel(sessionId, from, message) {
 }
 
 
-// Reply logic (NO repetition)
 
 function pickUnused(options, used) {
   const unused = options.filter(o => !used.includes(o));
@@ -99,10 +107,10 @@ function generateReply(session, incomingMessage) {
 }
 
 
-// Routes
 
 
-// Start session
+
+
 app.post("/api/v1/session/start", (req, res) => {
   const { channel, persona } = req.body;
 
@@ -122,7 +130,7 @@ app.post("/api/v1/session/start", (req, res) => {
     createdAt: new Date()
   };
 
-  console.log(`🧑 New session started with persona: ${PERSONAS[persona].name}`);
+  console.log(` New session started with persona: ${PERSONAS[persona].name}`);
 
   res.json({
     session_id: sessionId,
@@ -130,7 +138,7 @@ app.post("/api/v1/session/start", (req, res) => {
   });
 });
 
-// Receive message
+
 app.post("/api/v1/session/:id/message", async (req, res) => {
   const session = SESSIONS[req.params.id];
   if (!session) return res.status(404).json({ error: "Session not found" });
@@ -145,7 +153,7 @@ app.post("/api/v1/session/:id/message", async (req, res) => {
 
   logIntel(session.id, from, message);
 
-  // Simulate human delay
+
   await new Promise(r => setTimeout(r, 2000 + Math.random() * 3000));
 
   const reply = generateReply(session, message);
@@ -153,7 +161,7 @@ app.post("/api/v1/session/:id/message", async (req, res) => {
   res.json({ reply });
 });
 
-// View intel
+
 app.get("/api/v1/session/:id/intel", (req, res) => {
   const session = SESSIONS[req.params.id];
   if (!session) return res.status(404).json({ error: "Session not found" });
@@ -161,8 +169,6 @@ app.get("/api/v1/session/:id/intel", (req, res) => {
   res.json(session);
 });
 
-// Start server
-
 app.listen(PORT, () => {
-  console.log(`🛡️ Honeypot agent running at http://localhost:${PORT}`);
+  console.log(` Honeypot agent running at http://localhost:${PORT}`);
 });
