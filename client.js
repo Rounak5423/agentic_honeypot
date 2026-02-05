@@ -28,8 +28,8 @@ async function startSession() {
       return;
     }
 
-    console.log(`🧑 Persona: ${data.persona_name}`);
-    console.log("💬 Start typing scam messages. Press Ctrl+C to exit.\n");
+    console.log(` Persona: ${data.persona_name}`);
+    console.log(" Start typing scam messages. Press Ctrl+C to exit.\n");
 
     return data.session_id;
   } catch (err) {
@@ -55,11 +55,11 @@ async function sendMessage(sessionId, message) {
     const data = await res.json();
 
     if (res.status === 401) {
-      console.log("❌ Invalid API key!");
+      console.log(" Invalid API key!");
     } else if (res.status !== 200) {
-      console.log("❌ Error:", data);
+      console.log(" Error:", data);
     } else {
-      console.log("🤖 Agent:", data.reply);
+      console.log(" Agent:", data.reply);
     }
   } catch (err) {
     console.error("Error:", err);
